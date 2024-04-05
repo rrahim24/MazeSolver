@@ -139,6 +139,18 @@ public class Maze {
         return this.mazeGrid[row][col];
     }
 
+    public ArrayList<MazeCell> getNeighbors(MazeCell cell) {
+        int[][] directions = new int[][]{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // Up, Down, Left, Right
+        ArrayList<MazeCell> neighbors = new ArrayList<>();
+        for (int[] dir : directions) {
+            int newRow = cell.getRow() + dir[0];
+            int newCol = cell.getCol() + dir[1];
+            if (isValidCell(newRow, newCol)) { // Assuming isValidCell checks for bounds and if it's not a wall
+                neighbors.add(mazeGrid[newRow][newCol]);
+            }
+        }
+        return neighbors;
+    }
     /**
      * Determines if the cell is valid to visit.
      * @param row the int row val
@@ -147,6 +159,10 @@ public class Maze {
      */
     public boolean isValidCell(int row, int col) {
         // TODO: Complete this function
-        return true;
+        if (row >= 0 && row < numRows && col >= 0 && col < numCols) { //if cell isn't in grid, return false
+            MazeCell cell = mazeGrid[row][col];
+            return !cell.isWall() && !cell.isExplored(); // if cell is a wall or cell is explored, return false
+        }
+        return false;
     }
 }

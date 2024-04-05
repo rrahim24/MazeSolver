@@ -3,8 +3,11 @@
  * @author Ms. Namasivayam
  * @version 03/10/2023
  */
-
 import java.util.ArrayList;
+import java.util.Stack;
+import java.util.Queue;
+import java.util.LinkedList;
+
 
 public class MazeSolver {
     private Maze maze;
@@ -26,10 +29,18 @@ public class MazeSolver {
      * the parents to determine the solution
      * @return An arraylist of MazeCells to visit in order
      */
+
     public ArrayList<MazeCell> getSolution() {
-        // TODO: Get the solution from the maze
-        // Should be from start to end cells
-        return null;
+        ArrayList<MazeCell> path = new ArrayList<>();
+        MazeCell current = maze.getEndCell();
+
+        while (current != null) {
+            // Insert at the beginning of the list
+            path.add(0, current);
+            current = current.getParent();
+        }
+
+        return path;
     }
 
     /**
@@ -37,9 +48,32 @@ public class MazeSolver {
      * @return An ArrayList of MazeCells in order from the start to end cell
      */
     public ArrayList<MazeCell> solveMazeDFS() {
-        // TODO: Use DFS to solve the maze
-        // Explore the cells in the order: NORTH, EAST, SOUTH, WEST
-        return null;
+        maze.reset(); // reset maze
+
+        Stack<MazeCell> stack = new Stack<>();
+        stack.push(maze.getStartCell()); // Initiate DFS with start cell.
+        maze.getStartCell().setExplored(true); // Mark start as explored to prevent revisiting.
+
+        while (!stack.isEmpty()) {
+            MazeCell current = stack.pop(); // Remove and explore the top cell on the stack.
+
+            if (current.equals(maze.getEndCell())) {
+                return getSolution(); // End cell reached; backtrack to construct path.
+            }
+
+            // Iterate over unvisited, accessible neighbors.
+            for (MazeCell neighbor : maze.getNeighbors(current)) {
+                if (maze.isValidCell(neighbor.getRow(), neighbor.getCol())) { // Check if neighbor is a viable next step.
+                    neighbor.setExplored(true); // Mark as explored to avoid cycles.
+                    neighbor.setParent(current);
+                    stack.push(neighbor); // Add to stack for next exploration.
+                }
+            }
+        }
+
+        return new ArrayList<>(); // Return an empty list if no path to end cell is found.
+
+
     }
 
     /**
@@ -47,9 +81,32 @@ public class MazeSolver {
      * @return An ArrayList of MazeCells in order from the start to end cell
      */
     public ArrayList<MazeCell> solveMazeBFS() {
-        // TODO: Use BFS to solve the maze
-        // Explore the cells in the order: NORTH, EAST, SOUTH, WEST
-        return null;
+        // Reset maze for BFS
+        maze.reset();
+
+        Queue<MazeCell> queue = new LinkedList<>();
+        maze.getStartCell().setExplored(true); // Mark start cell as explored
+        queue.add(maze.getStartCell());
+
+        while (!queue.isEmpty()) {
+            MazeCell current = queue.remove(); // Explore cells in FIFO order.
+
+            if (current == maze.getEndCell()) {
+                return getSolution(); // Found the end; build and return the path.
+            }
+
+            // Check each accessible, unvisited neighbor of the current cell.
+            for (MazeCell neighbor : maze.getNeighbors(current)) {
+                if (maze.isValidCell(neighbor.getRow(), neighbor.getCol()) && !neighbor.isExplored()) { // Validate neighbor for exploration.
+                    neighbor.setExplored(true); // Mark neighbor as explored to prevent cycles.
+                    neighbor.setParent(current);
+                    queue.add(neighbor); // add neighbor for future exploration.
+                }
+            }
+        }
+
+        return new ArrayList<>(); // Return an empty list if no path
+
     }
 
     public static void main(String[] args) {
